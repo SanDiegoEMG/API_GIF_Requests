@@ -58,7 +58,11 @@
                 method: "GET"
             }).then(function (response) {
                 console.log(response);
+                var gifAddress = response.data.bitly_gif_url;
+                console.log(gifAddress);
             })
+
+
 
         });
 
