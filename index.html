@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Fun with Giphy</title>
+    <style type="text/css">
+        button,
+        div,
+        form,
+        input {
+            margin: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <section class="container">
+        <header class="row">
+            <h1>Discover amazing GIFs!</h1>
+            <h2>Click a category below</h2>
+        </header>
+
+        <form id="new-category" class="row">
+            <p>Or Enter a new category here</p>
+            <input type="text" id="gif-input">
+            <!-- Button triggers new gif search -->
+            <button id="search" type="button">Add Category</button>
+        </form>
+
+        <div class="row">
+            <button id="firstbutton" type="button">Primary</button>
+        </div>
+        <!-- attach api gif returns here -->
+        <div id="gifs-view"></div>
+    </section>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        // Beginning array
+        var categoryArr = ["happiness", "sadness", "joy", "celebration", "frustration", "enthusiasm", "lackluster", "accomplishment", "depressed", "eager"]
+
+        $(document).ready(function () {
+
+            // displayGifs function connects the query response to the button & renders results for display on the page
+
+            var gif = $(this).attr("data-name");
+            var myKey = "6uHibA1xshxP7rmDVDmbNyAZSSYiem0a"
+            var queryURL = "https://api.giphy.com/v1/gifs/random?api_key=" + myKey + "&limit=4";
+
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response);
+            })
+
+        });
+
+    </script>
+
+</body>
+
+</html>
