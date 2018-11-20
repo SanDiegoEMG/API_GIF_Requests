@@ -7,7 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Getting Giphy with Life</title>
     <style type="text/css">
-        button,
+        button {
+            margin: 15px;
+            padding: 5px;
+        }
+    button:hover {
+        border-style: double;
+    }
         div,
         form,
         input {
@@ -17,6 +23,14 @@
         image {
             display: block;
         }
+
+        #search {
+            background-color: rgb(30, 207, 30);
+            font-size: medium;
+        }
+        #text-input {
+            font-size: medium;
+        }
     </style>
 </head>
 
@@ -24,12 +38,12 @@
     <section class="container">
         <header class="row">
             <h1>Discover amazing GIFs!</h1>
-            <h2>Click a category below</h2>
+            <h2>Click a category </h2>
         </header>
 
         <div class="row">
             <form>
-                <p>Or enter a new category here</p>
+                <p>Or enter a new category </p>
                 <input type="text" id="text-input">
                 <!-- Button triggers new gif search -->
                 <button id="search" type="button">Add Category</button>
@@ -38,6 +52,7 @@
 
         <div class="row" id="categorybuttons">
         </div>
+        <div class="row" id="category-title"></div>;
         <!-- attach api gif returns here -->
         <div id="gifs-appear-here"></div>
     </section>
@@ -71,7 +86,7 @@
             //call the function to create buttons from the array
             createButtons();
 
-               $("#search").on("click", function () {
+            $("#search").on("click", function () {
                 //avoid duplicating the array
                 event.preventDefault();
                 // variable to hold the input value
@@ -79,15 +94,16 @@
                 console.log("Value of searched input = " + inputValue);
                 // push new entry to the array
                 categoryArr.push(inputValue);
+                console.log(categoryArr);
                 createButtons();
             });
 
 
-            $(".cat-button").on("click", function () {
-                // pulled out the category!
+            $(document).on("click", ".cat-button", function () {
                 category = $(this).attr("cat-name");
-                console.log(category);
+                console.log("this is from on-click of cat-button" + category);
                 $("#gifs-appear-here").empty();
+                $("#category-title").html("<h2>" + category + "</h2>");
                 getGifs();
             });
 
@@ -103,25 +119,24 @@
                     for (var i = 0; i < 10; i++) {
                         var getStillURL = results[i].images.fixed_height_still.url;
                         var getAnimateURL = results[i].images.fixed_height.url
-                        var seeItStill = $("<img>").attr("src", getStillURL).attr("data-animate", getAnimateURL).attr("data-state", "still").addClass("gif-img");
+                        var seeItStill = $("<img>").attr("src", getStillURL).attr("data-animate", getAnimateURL).attr("data-state", "still").addClass("gif-img").attr("data-still", getStillURL);
                         $("#gifs-appear-here").append(seeItStill);
                         console.log(getAnimateURL);
                     }
                 })
             };
 
-            $(".gif-img").on("click", function() {
-                console.log("data-state")
-                // if ($(this).val(data-state) === "still") {
-                //         $(this).attr("src", $(this).attr("data-animate"));
-                //         $(this).attr("data-state", "animate");
-                //     } else {
-                //         $(this).attr("src", $(this).attr("data-still"));
-                //         $(this).attr("data-state", "still");
-                //     }
+            $(document).on("click", ".gif-img", function () {
+                var state = $(this).attr("data-state");
+                console.log(state);
+                if (state === "still") {
+                    $(this).attr("src", $(this).attr("data-animate"));
+                    $(this).attr("data-state", "animate");
+                } else {
+                    $(this).attr("src", $(this).attr("data-still"));
+                    $(this).attr("data-state", "still");
+                }
             });
-
-         
 
         });
     </script>
