@@ -13,6 +13,10 @@
         input {
             margin: 10px;
         }
+
+        image {
+            display: block;
+        }
     </style>
 </head>
 
@@ -24,18 +28,19 @@
             <h2>Click a category below</h2>
         </header>
 
-        <form id="new-category" class="row">
-            <p>Or Enter a new category here</p>
-            <input type="text" id="gif-input">
-            <!-- Button triggers new gif search -->
-            <button id="search" type="button">Add Category</button>
-        </form>
-
         <div class="row">
-            <button id="firstbutton" type="button">Primary</button>
+            <form>
+                <p>Or enter a new category here</p>
+                <input type="text" id="text-input">
+                <!-- Button triggers new gif search -->
+                <button id="search" type="button">Add Category</button>
+            </form>
+        </div>
+
+        <div class="row" id="categorybuttons">
         </div>
         <!-- attach api gif returns here -->
-        <div id="gifs-view"></div>
+        <div id="gifs-appear-here"></div>
     </section>
 
 
@@ -47,24 +52,47 @@
 
         $(document).ready(function () {
 
-            // displayGifs function connects the query response to the button & renders results for display on the page
-
-            var gif = $(this).attr("data-name");
             var myKey = "6uHibA1xshxP7rmDVDmbNyAZSSYiem0a"
-            var queryURL = "https://api.giphy.com/v1/gifs/random?api_key=" + myKey + "&limit=4";
-
+            var queryURL = "https://api.giphy.com/v1/gifs/search?q=happiness&api_key=" + myKey + "&limit=5";
             $.ajax({
                 url: queryURL,
                 method: "GET"
             }).then(function (response) {
-                console.log(response);
-                var gifAddress = response.data.bitly_gif_url;
-                console.log(gifAddress);
-            })
+                var results = response.data;
+                console.log(results);
+                var gifDiv = $("<div class='gif-url'>");
+            });
+
+            var forLoopButtons = function () {
+                $("#categorybuttons").empty();
+
+                for (var i = 0; i < categoryArr.length; i++) {
+                    var categoryArrItem = categoryArr[i]
+                    var newBut = $("<button>")
+                    newBut.attr("cat-name", categoryArrItem);
+                    newBut.addClass("gif-button");
+                    newBut.text(categoryArrItem);
+                    $("#categorybuttons").append(newBut);
+                };
+            };
 
 
+            $("#search").on("click", function () {
+                //avoid duplicating the array
+                event.preventDefault();
+                // variable to hold the input value
+                var inputValue = $("#text-input").val().trim();
+                console.log("Value of searched input = " + inputValue);
+                // push new entry to the array
+                categoryArr.push(inputValue);
+                forLoopButtons();
+            });
+
+            forLoopButtons();
 
         });
+
+            // inputVar = $("#search").on("click", function(event) { }
 
     </script>
 
