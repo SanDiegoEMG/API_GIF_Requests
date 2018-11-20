@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Fun with Giphy</title>
+    <title>Getting Giphy with Life</title>
     <style type="text/css">
         button,
         div,
@@ -21,7 +21,6 @@
 </head>
 
 <body>
-
     <section class="container">
         <header class="row">
             <h1>Discover amazing GIFs!</h1>
@@ -47,37 +46,32 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
 
-        // Beginning array
-        var categoryArr = ["happiness", "sadness", "joy", "celebration", "frustration", "enthusiasm", "lackluster", "accomplishment", "depressed", "eager"]
+        // Universal variables
+        var categoryArr = ["happiness", "sadness", "joy", "celebration", "frustration", "enthusiasm", "lackluster", "accomplishment", "depressed", "eagerness"]
+
+        var myKey = "6uHibA1xshxP7rmDVDmbNyAZSSYiem0a"
+        var category = "";
 
         $(document).ready(function () {
 
-            var myKey = "6uHibA1xshxP7rmDVDmbNyAZSSYiem0a"
-            var queryURL = "https://api.giphy.com/v1/gifs/search?q=happiness&api_key=" + myKey + "&limit=5";
-            $.ajax({
-                url: queryURL,
-                method: "GET"
-            }).then(function (response) {
-                var results = response.data;
-                console.log(results);
-                var gifDiv = $("<div class='gif-url'>");
-            });
-
-            var forLoopButtons = function () {
+            // displaying buttons from categoryArr
+            function createButtons() {
+                // added this to prevent having the buttons duplicate every time the function is called
                 $("#categorybuttons").empty();
-
                 for (var i = 0; i < categoryArr.length; i++) {
                     var categoryArrItem = categoryArr[i]
                     var newBut = $("<button>")
                     newBut.attr("cat-name", categoryArrItem);
-                    newBut.addClass("gif-button");
+                    newBut.addClass("cat-button");
                     newBut.text(categoryArrItem);
                     $("#categorybuttons").append(newBut);
-                };
+                }
             };
 
+            //call the function to create buttons from the array
+            createButtons();
 
-            $("#search").on("click", function () {
+               $("#search").on("click", function () {
                 //avoid duplicating the array
                 event.preventDefault();
                 // variable to hold the input value
@@ -85,17 +79,68 @@
                 console.log("Value of searched input = " + inputValue);
                 // push new entry to the array
                 categoryArr.push(inputValue);
-                forLoopButtons();
+                createButtons();
             });
 
-            forLoopButtons();
+
+            $(".cat-button").on("click", function () {
+                // pulled out the category!
+                category = $(this).attr("cat-name");
+                console.log(category);
+                $("#gifs-appear-here").empty();
+                getGifs();
+            });
+
+
+            var getGifs = function () {
+                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + category + "&api_key=" + myKey + "&limit=10";
+                $.ajax({
+                    url: queryURL,
+                    method: "GET"
+                }).then(function (response) {
+                    console.log(response);
+                    var results = response.data;
+                    for (var i = 0; i < 10; i++) {
+                        var getStillURL = results[i].images.fixed_height_still.url;
+                        var getAnimateURL = results[i].images.fixed_height.url
+                        var seeItStill = $("<img>").attr("src", getStillURL).attr("data-animate", getAnimateURL).attr("data-state", "still").addClass("gif-img");
+                        $("#gifs-appear-here").append(seeItStill);
+                        console.log(getAnimateURL);
+                    }
+                })
+            };
+
+            $(".gif-img").on("click", function() {
+                console.log("data-state")
+                // if ($(this).val(data-state) === "still") {
+                //         $(this).attr("src", $(this).attr("data-animate"));
+                //         $(this).attr("data-state", "animate");
+                //     } else {
+                //         $(this).attr("src", $(this).attr("data-still"));
+                //         $(this).attr("data-state", "still");
+                //     }
+            });
+
+         
 
         });
-
-            // inputVar = $("#search").on("click", function(event) { }
-
     </script>
-
 </body>
 
 </html>
+
+<!-- Pseudo Coding in an attempt not to get twisted and tied in knots
+
+    1. for loop to loop through categoryArr - create & display buttons with class='cat-button' and attribute 'data-state' with starting value of 'still' - !!!!!!PUT THIS IN A FUNCTION SO IT CAN BE CALLED EVERY TIME A NEW ITEM IS ADDED TO categoryArr!!!
+
+2. on click function for class='cat-button' - runs .ajax with its category in the ?= area, console.log the urls 
+
+3. on click function for id="search" button - adds new category to categoryArr & adds new button
+
+4. if conditional to pause/play by switching data-state
+
+5. Disply the urls from the top 10 at id=gifs-appear-here
+
+5. HOW TO GRAB THE CATEGORY VALUE TO ADD TO QUERY?
+6. HOW TO ISOLATE THE URL FOR DISPLAY
+-->
