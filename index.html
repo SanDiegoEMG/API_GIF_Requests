@@ -1,148 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Getting Giphy with Life</title>
     <style type="text/css">
-        button {
-            margin: 15px;
-            padding: 5px;
-        }
-    button:hover {
-        border-style: double;
-    }
-        div,
-        form,
-        input {
-            margin: 10px;
-        }
+      button {
+        margin: 15px;
+        padding: 5px;
+        border-radius: 10px;
+        background-color: #e7e7e7;
+        color: black;
+        cursor: pointer;
+      }
+      button:hover {
+        box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24),
+          0 17px 50px 0 rgba(0, 0, 0, 0.19);
+      }
 
-        image {
-            display: block;
-        }
+      img {
+        cursor: pointer;
+      }
 
-        #search {
-            background-color: rgb(30, 207, 30);
-            font-size: medium;
-        }
-        #text-input {
-            font-size: medium;
-        }
+      div,
+      form,
+      input {
+        margin: 10px;
+      }
+
+      image {
+        display: block;
+      }
+
+      #search {
+        background-color: #4caf50; /* Green */
+        border: none;
+        color: white;
+        padding: 16px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+        cursor: pointer;
+      }
+
+      #text-input {
+        font-size: medium;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <section class="container">
-        <header class="row">
-            <h1>Discover amazing GIFs!</h1>
-            <h2>Click a category </h2>
-        </header>
+      <header class="row">
+        <h1>Discover amazing GIFs!</h1>
+        <h2>Click a category</h2>
+      </header>
 
-        <div class="row">
-            <form>
-                <p>Or enter a new category </p>
-                <input type="text" id="text-input">
-                <!-- Button triggers new gif search -->
-                <button id="search" type="button">Add Category</button>
-            </form>
-        </div>
+      <div class="row">
+        <form>
+          <p>Or enter a new category</p>
+          <input type="text" id="text-input" />
+          <!-- Button triggers new gif search -->
+          <button id="search" type="button">Add Category</button>
+        </form>
+      </div>
 
-        <div class="row" id="categorybuttons">
-        </div>
-        <div class="row" id="category-title"></div>;
-        <!-- attach api gif returns here -->
-        <div id="gifs-appear-here"></div>
+      <div class="row" id="categorybuttons"></div>
+      <div class="row" id="category-title"></div>
+      ;
+      <!-- attach api gif returns here -->
+      <div id="gifs-appear-here"></div>
     </section>
-
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript">
+      // Universal variables
+      var categoryArr = [
+        "happiness",
+        "sadness",
+        "joy",
+        "celebration",
+        "frustration",
+        "enthusiasm",
+        "lackluster",
+        "accomplishment",
+        "depressed",
+        "eagerness"
+      ];
 
-        // Universal variables
-        var categoryArr = ["happiness", "sadness", "joy", "celebration", "frustration", "enthusiasm", "lackluster", "accomplishment", "depressed", "eagerness"]
+      var myKey = "6uHibA1xshxP7rmDVDmbNyAZSSYiem0a";
+      var category = "";
 
-        var myKey = "6uHibA1xshxP7rmDVDmbNyAZSSYiem0a"
-        var category = "";
+      $(document).ready(function() {
+        // displaying buttons from categoryArr
+        function createButtons() {
+          // added this to prevent having the buttons duplicate every time the function is called
+          $("#categorybuttons").empty();
+          for (var i = 0; i < categoryArr.length; i++) {
+            var categoryArrItem = categoryArr[i];
+            var newBut = $("<button>");
+            newBut.attr("cat-name", categoryArrItem);
+            newBut.addClass("cat-button");
+            newBut.text(categoryArrItem);
+            $("#categorybuttons").append(newBut);
+          }
+        }
 
-        $(document).ready(function () {
+        //call the function to create buttons from the array
+        createButtons();
 
-            // displaying buttons from categoryArr
-            function createButtons() {
-                // added this to prevent having the buttons duplicate every time the function is called
-                $("#categorybuttons").empty();
-                for (var i = 0; i < categoryArr.length; i++) {
-                    var categoryArrItem = categoryArr[i]
-                    var newBut = $("<button>")
-                    newBut.attr("cat-name", categoryArrItem);
-                    newBut.addClass("cat-button");
-                    newBut.text(categoryArrItem);
-                    $("#categorybuttons").append(newBut);
-                }
-            };
-
-            //call the function to create buttons from the array
-            createButtons();
-
-            $("#search").on("click", function () {
-                //avoid duplicating the array
-                event.preventDefault();
-                // variable to hold the input value
-                var inputValue = $("#text-input").val().trim();
-                console.log("Value of searched input = " + inputValue);
-                // push new entry to the array
-                categoryArr.push(inputValue);
-                console.log(categoryArr);
-                createButtons();
-                $("#text-input").val("");
-            });
-
-
-            $(document).on("click", ".cat-button", function () {
-                category = $(this).attr("cat-name");
-                console.log("this is from on-click of cat-button" + category);
-                $("#gifs-appear-here").empty();
-                $("#category-title").html("<h2>" + category + "</h2>");
-                getGifs();
-            });
-
-
-            var getGifs = function () {
-                var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + category + "&api_key=" + myKey + "&limit=10";
-                $.ajax({
-                    url: queryURL,
-                    method: "GET"
-                }).then(function (response) {
-                    console.log(response);
-                    var results = response.data;
-                    for (var i = 0; i < 10; i++) {
-                        var getStillURL = results[i].images.fixed_height_still.url;
-                        var getAnimateURL = results[i].images.fixed_height.url
-                        var seeItStill = $("<img>").attr("src", getStillURL).attr("data-animate", getAnimateURL).attr("data-state", "still").addClass("gif-img").attr("data-still", getStillURL);
-                        $("#gifs-appear-here").append(seeItStill);
-                        console.log(getAnimateURL);
-                    }
-                })
-            };
-
-            $(document).on("click", ".gif-img", function () {
-                var state = $(this).attr("data-state");
-                console.log(state);
-                if (state === "still") {
-                    $(this).attr("src", $(this).attr("data-animate"));
-                    $(this).attr("data-state", "animate");
-                } else {
-                    $(this).attr("src", $(this).attr("data-still"));
-                    $(this).attr("data-state", "still");
-                }
-            });
-
+        $("#search").on("click", function() {
+          //avoid duplicating the array
+          event.preventDefault();
+          // variable to hold the input value
+          var inputValue = $("#text-input")
+            .val()
+            .trim();
+          console.log("Value of searched input = " + inputValue);
+          // push new entry to the array
+          categoryArr.push(inputValue);
+          console.log(categoryArr);
+          createButtons();
+          $("#text-input").val("");
         });
-    </script>
-</body>
 
+        $(document).on("click", ".cat-button", function() {
+          category = $(this).attr("cat-name");
+          console.log("this is from on-click of cat-button" + category);
+          $("#gifs-appear-here").empty();
+          $("#category-title").html("<h2>" + category + "</h2>");
+          getGifs();
+        });
+
+        var getGifs = function() {
+          var queryURL =
+            "https://api.giphy.com/v1/gifs/search?q=" +
+            category +
+            "&api_key=" +
+            myKey +
+            "&limit=10";
+          $.ajax({
+            url: queryURL,
+            method: "GET"
+          }).then(function(response) {
+            console.log(response);
+            var results = response.data;
+            for (var i = 0; i < 10; i++) {
+              var getStillURL = results[i].images.fixed_height_still.url;
+              var getAnimateURL = results[i].images.fixed_height.url;
+              var seeItStill = $("<img>")
+                .attr("src", getStillURL)
+                .attr("data-animate", getAnimateURL)
+                .attr("data-state", "still")
+                .addClass("gif-img")
+                .attr("data-still", getStillURL);
+              $("#gifs-appear-here").append(seeItStill);
+              console.log(getAnimateURL);
+            }
+          });
+        };
+
+        $(document).on("click", ".gif-img", function() {
+          var state = $(this).attr("data-state");
+          console.log(state);
+          if (state === "still") {
+            $(this).attr("src", $(this).attr("data-animate"));
+            $(this).attr("data-state", "animate");
+          } else {
+            $(this).attr("src", $(this).attr("data-still"));
+            $(this).attr("data-state", "still");
+          }
+        });
+      });
+    </script>
+  </body>
 </html>
 
 <!-- Pseudo Coding in an attempt not to get twisted and tied in knots
